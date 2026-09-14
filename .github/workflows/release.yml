@@ -1,0 +1,64 @@
+# package.json の version に対応する tag（v<version>）が無ければ、ビルドして tag を打つ
+#
+# 運用: `npm version patch` → `git push` するだけ。
+#
+# main には dist を入れない。dist/browser を含む commit をこの workflow で作り、tag だけを push する。
+# jsDelivr はその tag から配信する:
+#   https://cdn.jsdelivr.net/gh/Orphe-OSS/ORPHE-DEVICE.js@v<version>/dist/browser/orphe-device.js
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: version を読み、tag が既にあるか確認
+        id: version
+        run: |
+          VERSION="v$(node -p "require('./package.json').version")"
+          echo "tag=$VERSION" >> "$GITHUB_OUTPUT"
+          if git ls-remote --exit-code --tags origin "refs/tags/$VERSION" > /dev/null; then
+            echo "$VERSION は作成済みのためスキップ"
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - if: steps.version.outputs.exists == 'false'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - if: steps.version.outputs.exists == 'false'
+        run: npm ci
+
+      - if: steps.version.outputs.exists == 'false'
+        run: npm run check
+
+      - if: steps.version.outputs.exists == 'false'
+        run: npm run build:browser
+
+      - name: dist/browser を含む commit に tag を打って push（main には push しない）
+        if: steps.version.outputs.exists == 'false'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -f dist/browser
+          git commit -m "release $TAG"
+          git tag "$TAG"
+          git push origin "refs/tags/$TAG"

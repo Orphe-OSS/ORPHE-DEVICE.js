@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ja">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ORPHE CORE — Sensor Viewer</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+  <header class="page">
+    <h1>ORPHE CORE — Sensor Viewer</h1>
+    <span class="sub">OrpheDevice + coreProfile()</span>
+    <a href="./index.html">← examples</a>
+  </header>
+
+  <section class="card">
+    <h2>ORPHE CORE
+      <span class="badge" data-state>disconnected</span>
+      <span class="device" data-device></span>
+    </h2>
+
+    <div class="controls">
+      <button data-connect>接続</button>
+      <label data-mode-wrap hidden>モード
+        <select data-mode></select>
+      </label>
+      <span class="hint" data-acquisition></span>
+    </div>
+    <div class="hint" data-fw></div>
+
+    <div class="cube-stage" data-modes="all step sensor" hidden>
+      <div class="cube" data-cube>
+        <div class="face f">F</div><div class="face b">B</div>
+        <div class="face l">L</div><div class="face r">R</div>
+        <div class="face t">T</div><div class="face bt"></div>
+      </div>
+    </div>
+    <div class="stats" data-modes="all step sensor" hidden>
+      <span>freq <b data-freq>-</b> Hz</span>
+      <span>serial <b data-serial>-</b></span>
+      <span>lost <b data-lost>0</b></span>
+      <span data-modes="all step">steps <b data-steps>-</b></span>
+    </div>
+    <table class="values" data-modes="all step sensor" hidden>
+      <tr><th class="row"></th><th>W</th><th>X</th><th>Y</th><th>Z</th></tr>
+      <tr><th class="row">Quat</th><td data-v="quat.w"></td><td data-v="quat.x"></td><td data-v="quat.y"></td><td data-v="quat.z"></td></tr>
+      <tr><th class="row">Euler [rad]</th><td></td><td data-v="euler.pitch"></td><td data-v="euler.roll"></td><td data-v="euler.yaw"></td></tr>
+      <tr data-modes="all sensor"><th class="row">Gyro [dps]</th><td></td><td data-v="converted_gyro.x"></td><td data-v="converted_gyro.y"></td><td data-v="converted_gyro.z"></td></tr>
+      <tr data-modes="all sensor"><th class="row">Acc [G]</th><td></td><td data-v="converted_acc.x"></td><td data-v="converted_acc.y"></td><td data-v="converted_acc.z"></td></tr>
+      <tr data-modes="all step"><th class="row">Delta</th><td></td><td data-v="delta.x"></td><td data-v="delta.y"></td><td data-v="delta.z"></td></tr>
+    </table>
+    <table class="values" data-modes="all step" hidden>
+      <tr><th class="row"></th><th>type</th><th>direc</th><th>cals</th><th>dist</th></tr>
+      <tr><th class="row">Gait</th><td data-v="gait.type"></td><td data-v="gait.direction"></td><td data-v="gait.calorie"></td><td data-v="gait.distance"></td></tr>
+      <tr><th class="row"></th><th>foot angle</th><th>X</th><th>Y</th><th>Z</th></tr>
+      <tr><th class="row">Stride</th><td data-v="foot_angle.value"></td><td data-v="stride.x"></td><td data-v="stride.y"></td><td data-v="stride.z"></td></tr>
+      <tr><th class="row"></th><th>impact</th><th>X</th><th>Y</th><th>Z</th></tr>
+      <tr><th class="row">Pronation</th><td data-v="landing_impact.value"></td><td data-v="pronation.x"></td><td data-v="pronation.y"></td><td data-v="pronation.z"></td></tr>
+    </table>
+
+    <div class="module" data-fifo-module hidden>
+      <div class="module-head">
+        <span data-fifo-title></span>
+        <button data-fifo-toggle disabled>収録開始</button>
+        <button data-fifo-csv disabled>CSV</button>
+      </div>
+      <div class="stats">
+        <span>collected <b data-fifo-collected>0</b></span>
+        <span>lag <b data-fifo-lag>0</b></span>
+        <span>dropped <b data-fifo-dropped>0</b></span>
+        <span data-fifo-phase></span>
+      </div>
+    </div>
+
+    <div class="log" data-log></div>
+
+    <details class="debug">
+      <summary>オプション</summary>
+      <div class="controls">
+        <label><input type="checkbox" id="shared-reconnect" checked>自動再接続</label>
+        <label><input type="checkbox" id="shared-debug" checked>デバッグログ</label>
+      </div>
+    </details>
+  </section>
+
+  <script type="module" src="./core.ts"></script>
+</body>
+
+</html>
