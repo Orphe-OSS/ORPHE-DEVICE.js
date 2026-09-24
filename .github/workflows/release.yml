@@ -12,7 +12,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: release
@@ -21,8 +21,15 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    # tag push のためだけに write が要る。書き込みトークンは最後の push step にのみ渡す
+    permissions:
+      contents: write
     steps:
-      - uses: actions/checkout@v4
+      # action は SHA で固定する（tag は書き換え可能なため）。更新は dependabot に任せる
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # npm の依存パッケージが動いている間、書き込みトークンを .git に残さない
+          persist-credentials: false
 
       - name: version を読み、tag が既にあるか確認
         id: version
@@ -37,13 +44,18 @@ jobs:
           fi
 
       - if: steps.version.outputs.exists == 'false'
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: 22
           cache: npm
 
+      # install script は fsevents（macOS のみ）だけなので ubuntu では無効化して困らない
       - if: steps.version.outputs.exists == 'false'
-        run: npm ci
+        run: npm ci --ignore-scripts
+
+      # dist/browser は devDependencies の脆弱性も対象
+      - if: steps.version.outputs.exists == 'false'
+        run: npm audit --audit-level=high
 
       - if: steps.version.outputs.exists == 'false'
         run: npm run check
@@ -55,10 +67,12 @@ jobs:
         if: steps.version.outputs.exists == 'false'
         env:
           TAG: ${{ steps.version.outputs.tag }}
+          REPO: ${{ github.repository }}
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
           git add -f dist/browser
           git commit -m "release $TAG"
           git tag "$TAG"
-          git push origin "refs/tags/$TAG"
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" "refs/tags/$TAG"
