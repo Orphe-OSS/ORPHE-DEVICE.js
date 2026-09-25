@@ -7,6 +7,7 @@
  * デバイスSDK（Orphe / OrpheInsole）はこのファサードを内包するか、
  * 直接これを公開 API として使う。
  *
+ *   const ble = new OrpheCoreInsole();   // profile 省略時は autoProfile()（デバイス名で CORE / INSOLE を判別）
  *   const ble = new OrpheCoreInsole({ profile: coreProfile(), id: 0 });
  *   ble.on('acc', (acc) => { ... });
  *   await ble.begin('SENSOR_VALUES', { autoReconnect: true });
@@ -18,6 +19,7 @@ import { OrpheBleTransport } from '../ble/transport.ts';
 import { decodeFirmwareInfo } from '../protocol/fw-info.ts';
 import type { FirmwareInfo } from '../protocol/fw-info.ts';
 import { SampleEmitter } from './sample-emitter.ts';
+import { autoProfile } from '../profiles/auto.ts';
 import type { SampleListener } from './sample-emitter.ts';
 
 /** FW 情報を read する characteristic の論理名 */
@@ -25,8 +27,8 @@ const FIRMWARE_NAME_UUID = 'GET_FW_NAME';
 
 /** OrpheCoreInsole のコンストラクタオプション */
 export interface OrpheCoreInsoleOptions<TFields extends object = SensorFieldMap> {
-  /** デバイス種別の実装（coreProfile() / insoleProfile()） */
-  profile: DeviceProfile<TFields>;
+  /** デバイス種別の実装（coreProfile() / insoleProfile() / autoProfile()）。省略時は autoProfile() */
+  profile?: DeviceProfile<TFields>;
   /** スロット番号（0 or 1）。記憶キーの分離に使う。既定 0 */
   id?: number;
   /** transport イベントの購読（onNotification は parse 前の生 DataView が透過で届く） */
@@ -64,15 +66,15 @@ export class OrpheCoreInsole<TFields extends object = SensorFieldMap> {
   private readonly notifySinks = new Map<string, (value: DataView) => void>();
   private readonly clock: () => number;
   private frequencyStart = 0;
-  private lastBeginType: string;
+  /** 前回 begin() の type。省略時は undefined のまま持ち、再接続のたびにプロファイルの既定を使う */
+  private lastBeginType: string | undefined;
   private lastBeginOptions: BeginOptions = {};
   private firmwareInfo: FirmwareInfo | null = null;
   private readonly debugLog: (message: string, detail?: unknown) => void;
 
-  constructor(options: OrpheCoreInsoleOptions<TFields>) {
-    this.profile = options.profile;
+  constructor(options: OrpheCoreInsoleOptions<TFields> = {}) {
+    this.profile = options.profile ?? (autoProfile() as unknown as DeviceProfile<TFields>);
     this.id = options.id ?? 0;
-    this.lastBeginType = this.profile.defaultNotificationType;
     this.userEvents = options.events ?? {};
     this.clock = options.clock ?? (() => performance.now());
     this.debugLog = options.log ?? (() => {});
@@ -255,11 +257,10 @@ export class OrpheCoreInsole<TFields extends object = SensorFieldMap> {
    * autoReconnect 指定時は以後の切断で同じシーケンスが自動再実行される。
    */
   async begin(type?: string, options: BeginOptions = {}): Promise<unknown> {
-    const notificationType = type ?? this.profile.defaultNotificationType;
     // chooser の強制は最初のデバイス選択にだけ効かせる。プロファイルの各 GATT 操作や
     // 自動再接続へは渡さない（渡すと操作のたびに chooser が開く）
     const { forceDeviceSelection, ...profileOptions } = options;
-    this.lastBeginType = notificationType;
+    this.lastBeginType = type;
     this.lastBeginOptions = profileOptions;
 
     if (options.autoReconnect) {
@@ -276,15 +277,21 @@ export class OrpheCoreInsole<TFields extends object = SensorFieldMap> {
         this.transport.setConnecting(false);
       }
     }
-    return this.runBegin(notificationType, profileOptions);
+    return this.runBegin(type, profileOptions);
   }
 
   /** begin シーケンス本体（手動 begin と自動再接続の共通経路） */
-  private async runBegin(notificationType: string, options: BeginOptions): Promise<unknown> {
+  private async runBegin(type: string | undefined, options: BeginOptions): Promise<unknown> {
     this.transport.setConnecting(true);
     try {
+      if (this.profile.resolveDevice) {
+        // デバイス名で振る舞いを決めるプロファイルには、接続シーケンスの前に選んだデバイスを渡す
+        await this.transport.scan('DEVICE_INFORMATION');
+        this.profile.resolveDevice(this.transport.device?.name ?? null, this.debugLog);
+      }
       // プロファイルの接続シーケンスが FW で分岐できるよう、先に FW を読む
       await this.readFirmwareInfo();
+      const notificationType = type ?? this.profile.defaultNotificationType;
       const result = await this.profile.begin({
         transport: this.transport,
         notificationType,

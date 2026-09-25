@@ -80,6 +80,10 @@ export {
 } from './protocol/pressure-calibration.ts';
 export type { PressureCalibration } from './protocol/pressure-calibration.ts';
 
+// ── プロファイル（自動判別） ──────────────────────────────────────
+export { AutoProfile, autoProfile, detectDeviceKind } from './profiles/auto.ts';
+export type { AutoProfileOptions, AutoSensorFields, DeviceKind } from './profiles/auto.ts';
+
 // ── FIFO 収録（ロスレス） ─────────────────────────────────────────
 export { FifoRecorder } from './fifo/recorder.ts';
 export type {

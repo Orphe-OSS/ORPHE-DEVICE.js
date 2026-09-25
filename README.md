@@ -69,6 +69,30 @@ await ble.begin('SENSOR_VALUES', { autoReconnect: true });
 ble.stop();
 ```
 
+### CORE / INSOLE を自動で判別する
+
+`profile` を省略すると `autoProfile()` になり、chooser に CORE と INSOLE の両方が出ます。選んだデバイスの名前で種別を判別します（`INS` で始まる名前なら INSOLE、それ以外は CORE）。
+
+```ts
+import { OrpheCoreInsole } from 'orphe-core-insole';
+
+const ble = new OrpheCoreInsole();
+await ble.begin();   // 種別を省略すると、CORE は STEP_ANALYSIS、INSOLE は SENSOR_VALUES で開始する
+ble.profile.kind;    // 'core' | 'insole'（接続前は 'auto'）
+```
+
+判別後に使うプロファイルへオプションを渡すときは `autoProfile()` を明示します。
+
+```ts
+import { OrpheCoreInsole, autoProfile } from 'orphe-core-insole';
+
+const ble = new OrpheCoreInsole({
+  profile: autoProfile({ core: { /* coreProfile() のオプション */ }, insole: { /* insoleProfile() のオプション */ } }),
+});
+```
+
+記憶デバイスの保存先は `coreProfile()` / `insoleProfile()` とは別になります。`availableModes` は接続して種別が決まるまで空です。
+
 ### 購読できるフィールド
 
 | プロファイル | フィールド |

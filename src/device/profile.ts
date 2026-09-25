@@ -111,6 +111,11 @@ export interface DeviceProfile<TFields extends object = SensorFieldMap> {
    */
   parse(uuid: string, data: DataView): Array<Partial<TFields>> | null;
   /**
+   * begin() でデバイスを選んだ直後、接続シーケンスより先に呼ばれる（name は advertise 名。取れなければ null）。
+   * デバイス名で振る舞いを変えるプロファイル（autoProfile）が実装する。
+   */
+  resolveDevice?(name: string | null, log?: (message: string, detail?: unknown) => void): void;
+  /**
    * このデバイスが提供しうる取得モードの一覧（FW による絞り込み前）。
    * 未実装なら FW によるモード制限を行わない。
    */
