@@ -225,18 +225,27 @@ export class OrpheCoreInsole<TFields extends object = SensorFieldMap> {
 
   /**
    * GET_FW_NAME を read してファームウェア情報を取り直す。
+   * autoProfile のようにデバイス名で振る舞いを決めるプロファイルは、ここで CORE / INSOLE を判別する。
    * characteristic 未実装・read 失敗・日付未書込はすべて null（例外は投げない）。
    * デバイスの選択（chooser のキャンセル、別スロットへの割当済み）だけは失敗として reject する。
    */
   async readFirmwareInfo(): Promise<FirmwareInfo | null> {
-    if (!this.transport.hasCharacteristic(FIRMWARE_NAME_UUID)) {
+    const hasFirmwareName = this.transport.hasCharacteristic(FIRMWARE_NAME_UUID);
+    if (!hasFirmwareName && !this.profile.resolveDevice) {
       this.firmwareInfo = null;
       return null;
     }
     // デバイス選択と GATT 接続をここで済ませる場合があるため、その間は connecting を出す
     this.transport.setConnecting(true);
     try {
-      await this.transport.scan(FIRMWARE_NAME_UUID);
+      await this.transport.scan(hasFirmwareName ? FIRMWARE_NAME_UUID : 'DEVICE_INFORMATION');
+      // デバイス名で振る舞いを決めるプロファイル（autoProfile）は、選んだ時点で判別する。
+      // FW の read より先に済ませ、read に失敗しても availableModes が出せるようにする
+      this.profile.resolveDevice?.(this.transport.device?.name ?? null, this.debugLog);
+      if (!hasFirmwareName) {
+        this.firmwareInfo = null;
+        return null;
+      }
       try {
         this.firmwareInfo = decodeFirmwareInfo(await this.transport.read(FIRMWARE_NAME_UUID, { silent: true }));
       } catch {
@@ -284,12 +293,8 @@ export class OrpheCoreInsole<TFields extends object = SensorFieldMap> {
   private async runBegin(type: string | undefined, options: BeginOptions): Promise<unknown> {
     this.transport.setConnecting(true);
     try {
-      if (this.profile.resolveDevice) {
-        // デバイス名で振る舞いを決めるプロファイルには、接続シーケンスの前に選んだデバイスを渡す
-        await this.transport.scan('DEVICE_INFORMATION');
-        this.profile.resolveDevice(this.transport.device?.name ?? null, this.debugLog);
-      }
-      // プロファイルの接続シーケンスが FW で分岐できるよう、先に FW を読む
+      // プロファイルの接続シーケンスが FW で分岐できるよう、先に FW を読む。
+      // デバイス名で振る舞いを決めるプロファイルの判別もここで済む
       await this.readFirmwareInfo();
       const notificationType = type ?? this.profile.defaultNotificationType;
       const result = await this.profile.begin({

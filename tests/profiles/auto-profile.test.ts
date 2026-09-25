@@ -133,3 +133,28 @@ test('profile を省略すると autoProfile() で動く', async () => {
   await ble.begin();
   assert.equal(ble.profile.kind, 'insole');
 });
+
+test('readFirmwareInfo() の時点で判別し、availableModes が出る', async () => {
+  const bluetooth = new MockBluetooth();
+  bluetooth.chooserQueue.push(mockInsoleDevice().device);
+  const { ble, profile } = makeBle(bluetooth);
+
+  await ble.readFirmwareInfo();
+
+  assert.equal(profile.kind, 'insole');
+  assert.deepEqual(
+    ble.availableModes.map(mode => mode.id),
+    profile.insole.modes().map(mode => mode.id),
+  );
+});
+
+test('readFirmwareInfo() の FW read が失敗しても判別は済む', async () => {
+  const bluetooth = new MockBluetooth();
+  const { device } = mockCoreDevice(); // GET_FW_NAME を持たない
+  bluetooth.chooserQueue.push(device);
+  const { ble, profile } = makeBle(bluetooth);
+
+  assert.equal(await ble.readFirmwareInfo(), null);
+  assert.equal(profile.kind, 'core');
+  assert.ok(ble.availableModes.length > 0);
+});

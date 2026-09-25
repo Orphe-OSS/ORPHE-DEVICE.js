@@ -91,7 +91,7 @@ const ble = new OrpheCoreInsole({
 });
 ```
 
-記憶デバイスの保存先は `coreProfile()` / `insoleProfile()` とは別になります。`availableModes` は接続して種別が決まるまで空です。
+記憶デバイスの保存先は `coreProfile()` / `insoleProfile()` とは別になります。`availableModes` は `readFirmwareInfo()` か `begin()` で接続して種別が決まるまで空です。
 
 ### 購読できるフィールド
 
