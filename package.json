@@ -1,0 +1,25 @@
+{
+  "name": "orphe-core-insole",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Shared BLE transport layer for ORPHE CORE / ORPHE INSOLE JavaScript SDKs",
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types --no-warnings=ExperimentalWarning --test 'tests/**/*.test.ts'",
+    "typecheck": "tsc --noEmit",
+    "typecheck:example": "tsc -p example/tsconfig.json",
+    "check": "npm run typecheck && npm run typecheck:example && npm test",
+    "build": "tsc -p tsconfig.build.json",
+    "build:browser": "vite build --config vite.device.config.ts && vite build --config vite.device.config.ts --mode min && vite build --config vite.toolkit.config.ts && vite build --config vite.toolkit.config.ts --mode min",
+    "example": "vite",
+    "docs": "typedoc"
+  },
+  "author": "Tetsuaki BABA and ORPHE Inc.",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "devDependencies": {
+    "@types/node": "^22.20.1",
+    "happy-dom": "^20.14.5",
+    "typedoc": "^0.28.20",
+    "vite": "^8.2.2"
+  }
+}

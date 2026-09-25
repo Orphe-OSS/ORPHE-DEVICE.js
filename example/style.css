@@ -1,0 +1,236 @@
+/* examples 共通スタイル */
+/* display 指定持ちの要素（flex/grid）でも hidden 属性を効かせる */
+[hidden] { display: none !important; }
+
+:root {
+  --bg: #14161a;
+  --card: #1d2026;
+  --card-border: #2c313a;
+  --text: #e8eaed;
+  --muted: #9aa0a8;
+  --accent: #4da3ff;
+  --ok: #3ecf8e;
+  --warn: #ffb454;
+  --err: #ff6b6b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 16px;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Hiragino Sans", sans-serif;
+  font-size: 14px;
+}
+
+header.page {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+header.page h1 { font-size: 18px; margin: 0; }
+header.page .sub { color: var(--muted); font-size: 12px; }
+header.page a { color: var(--accent); text-decoration: none; }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: 14px;
+  max-width: 560px;
+}
+
+/* index.html のページ一覧 */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.gallery .card { max-width: none; text-decoration: none; color: inherit; }
+.gallery .card code { font-size: 11px; color: var(--accent); }
+
+.card h2 {
+  font-size: 15px;
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card h2 .device { color: var(--muted); font-weight: normal; font-size: 12px; }
+
+/* 補足テキスト（FW 名・現在の取得状態など） */
+/* 接続前など、行がないうちはログ枠を出さない */
+.log:empty { display: none; }
+
+.hint { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+
+/* 普段は畳んでおくデバッグ用トグル群 */
+details.debug { margin-top: 12px; }
+details.debug summary { font-size: 12px; color: var(--muted); cursor: pointer; }
+details.debug .controls { margin: 8px 0 0; }
+
+.badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: #333;
+  color: var(--muted);
+}
+.badge.connected { background: #1d3a2c; color: var(--ok); }
+.badge.connecting, .badge.reconnecting { background: #3a2f1d; color: var(--warn); }
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.controls select, .controls button {
+  background: #262a31;
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 13px;
+}
+.controls button { cursor: pointer; }
+.controls button:hover { border-color: var(--accent); }
+.controls button:disabled { opacity: 0.5; cursor: default; }
+.controls label { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 4px; }
+
+.stats {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.stats b { color: var(--text); font-variant-numeric: tabular-nums; }
+
+table.values {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+table.values th, table.values td {
+  text-align: right;
+  padding: 3px 6px;
+  border-bottom: 1px solid var(--card-border);
+  font-variant-numeric: tabular-nums;
+}
+table.values th { color: var(--muted); font-weight: normal; }
+table.values th.row { text-align: left; color: var(--text); width: 30%; }
+table.values td { min-width: 56px; }
+
+/* ─── 姿勢キューブ（euler 確認用） ─── */
+.cube-stage {
+  perspective: 480px;
+  width: 100%;
+  height: 120px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
+.cube {
+  width: 64px;
+  height: 64px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 60ms linear;
+}
+.cube .face {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border: 1px solid var(--accent);
+  background: rgba(77, 163, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: var(--accent);
+}
+.cube .f  { transform: translateZ(32px); }
+.cube .b  { transform: rotateY(180deg) translateZ(32px); }
+.cube .l  { transform: rotateY(-90deg) translateZ(32px); }
+.cube .r  { transform: rotateY(90deg) translateZ(32px); }
+.cube .t  { transform: rotateX(90deg) translateZ(32px); }
+.cube .bt { transform: rotateX(-90deg) translateZ(32px); }
+
+/* ─── 圧力バー（INSOLE） ─── */
+.press-bars {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 8px;
+  height: 140px;
+  align-items: end;
+  margin-bottom: 4px;
+}
+.press-bars .ch { display: flex; flex-direction: column; align-items: center; height: 100%; }
+.press-bars .bar-track {
+  flex: 1;
+  width: 70%;
+  background: #262a31;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+.press-bars .bar {
+  width: 100%;
+  background: linear-gradient(to top, var(--accent), #9ed0ff);
+  height: 0%;
+}
+.press-bars .val { font-size: 10px; color: var(--muted); margin-top: 3px; font-variant-numeric: tabular-nums; }
+.press-bars .name { font-size: 10px; color: var(--muted); }
+
+/* ─── モジュールセクション（FIFO / 歩容解析） ─── */
+.module {
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+}
+.module .module-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.module .module-head span { flex: 1; color: var(--muted); }
+.module .module-head button {
+  background: #262a31;
+  color: var(--text);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.module .module-head button:hover { border-color: var(--accent); }
+.module .module-head button:disabled { opacity: 0.5; cursor: default; }
+.module .stats { margin-bottom: 0; }
+
+.log {
+  height: 110px;
+  overflow-y: auto;
+  background: #16181d;
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 11px;
+  color: var(--muted);
+}
+.log .warn { color: var(--err); }
+
+footer { margin-top: 20px; color: var(--muted); font-size: 11px; text-align: center; }

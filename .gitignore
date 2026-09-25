@@ -1,0 +1,8 @@
+node_modules/
+dist/
+example/dist/
+.playwright-cli/
+api_doc/
+
+# ローカル検証用に立てた Chrome のプロファイル
+.chrome-ble-debug/
