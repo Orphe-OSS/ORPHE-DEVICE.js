@@ -28,6 +28,7 @@ class FakeProfile implements DeviceProfile {
   beginTypes: string[] = [];
   steps: string[] = [];
   failNextBegin: unknown = null;
+  resolveDevice?: (name: string | null) => void;
 
   storageKey(id: number): string {
     return `orphe_fake_last_device_${id}`;
@@ -87,6 +88,20 @@ function makeHarness(events: TransportEvents = {}) {
 function emit(characteristic: { emit(v: DataView): void }, ...bytes: number[]): void {
   characteristic.emit(new DataView(new Uint8Array(bytes).buffer));
 }
+
+test('readFirmwareInfo: GET_FW_NAME を登録しないプロファイルでも resolveDevice は呼ばれ、read はしない', async () => {
+  const h = makeHarness();
+  const resolved: (string | null)[] = [];
+  h.profile.resolveDevice = (name) => { resolved.push(name); };
+  const info = h.device.gatt.getOrCreateService(SERVICE_A).getOrCreate(CHAR_INFO);
+
+  assert.equal(await h.ble.readFirmwareInfo(), null);
+
+  assert.deepEqual(resolved, ['FAKE-01']);
+  assert.equal(h.ble.firmware, null);
+  assert.equal(info.readCalls, 0, 'FW characteristic が無いので GATT read は行わない');
+  assert.equal(h.ble.transport.device?.name, 'FAKE-01', 'デバイスの選択は済んでいる');
+});
 
 test('begin: プロファイルのシーケンスを実行し、成功でデバイスを記憶する', async () => {
   const h = makeHarness();

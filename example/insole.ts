@@ -58,9 +58,9 @@ const ble = new OrpheCoreInsole({
   events: {
     onScan: (deviceName) => { q('[data-device]').textContent = deviceName ?? '(no name)'; },
     onStartNotify: (uuid) => log(`startNotify: ${uuid}`),
-    onDisconnect: () => log('切断されました'),
+    onDisconnect: () => { log('切断されました'); markDisconnected(); },
     onReconnectAttempt: (info) => log(`再接続中... ${info.attempt}/${info.maxAttempts}`),
-    onReconnectSuccess: (info) => log(`再接続成功 (attempt ${info.attempt})`),
+    onReconnectSuccess: (info) => { log(`再接続成功 (attempt ${info.attempt})`); void resumeAfterReconnect(); },
     onReconnectFailed: () => log('自動再接続を諦めました', true),
     onError: (error) => log(`エラー: ${error}`, true),
   },
@@ -144,8 +144,20 @@ const modeWrap = q<HTMLElement>('[data-mode-wrap]');
 let begun = false;
 let switching = false;
 
+/** 切断されたら計測前の状態に戻す（手動で再接続したときは begin() からやり直す） */
+function markDisconnected(): void {
+  begun = false;
+}
+
+/** 自動再接続は最初の begin() の streamingMode に戻るので、選択中のモードを当て直す */
+async function resumeAfterReconnect(): Promise<void> {
+  begun = true;
+  await applyMode();
+}
+
 /** 接続後に呼ぶ。この FW で使えるモードだけをセレクタに並べる */
 function buildModeOptions(): void {
+  const selected = modeSelect.value; // 手動で再接続したときは前回のモードを引き継ぐ
   modeSelect.replaceChildren();
   for (const mode of ble.availableModes) {
     const option = document.createElement('option');
@@ -153,13 +165,14 @@ function buildModeOptions(): void {
     option.textContent = MODE_LABELS[mode.id] ?? mode.label;
     modeSelect.appendChild(option);
   }
+  if ([...modeSelect.options].some((option) => option.value === selected)) modeSelect.value = selected;
   modeWrap.hidden = modeSelect.options.length === 0;
 }
 
 modeSelect.addEventListener('change', () => void applyMode());
 
 async function applyMode(): Promise<void> {
-  if (switching || ble.connectionState === 'disconnected') return;
+  if (switching || ble.connectionState !== 'connected') return;
   const mode = modeSelect.value;
   const streamingMode = insoleStreamingModeOf(mode) ?? BASE_STREAMING_MODE;
   switching = true;
@@ -231,7 +244,7 @@ async function disconnect(): Promise<void> {
     if (gait.isRunning) await gait.stop();
     ble.stop();
     log('stop()');
-    begun = false;
+    markDisconnected();
     modeWrap.hidden = true;
     fwEl.textContent = '';
     clearReadings();

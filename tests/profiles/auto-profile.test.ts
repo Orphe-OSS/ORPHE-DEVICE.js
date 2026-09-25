@@ -150,7 +150,8 @@ test('readFirmwareInfo() の時点で判別し、availableModes が出る', asyn
 
 test('readFirmwareInfo() の FW read が失敗しても判別は済む', async () => {
   const bluetooth = new MockBluetooth();
-  const { device } = mockCoreDevice(); // GET_FW_NAME を持たない
+  // プロファイルは GET_FW_NAME を登録するが、モック側に characteristic が無いので read が失敗する
+  const { device } = mockCoreDevice();
   bluetooth.chooserQueue.push(device);
   const { ble, profile } = makeBle(bluetooth);
 

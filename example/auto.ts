@@ -54,9 +54,9 @@ const ble = new OrpheCoreInsole({
   events: {
     onScan: (deviceName) => { q('[data-device]').textContent = deviceName ?? '(no name)'; },
     onStartNotify: (uuid) => log(`startNotify: ${uuid}`),
-    onDisconnect: () => log('切断されました'),
+    onDisconnect: () => { log('切断されました'); markDisconnected(); },
     onReconnectAttempt: (info) => log(`再接続中... ${info.attempt}/${info.maxAttempts}`),
-    onReconnectSuccess: (info) => log(`再接続成功 (attempt ${info.attempt})`),
+    onReconnectSuccess: (info) => { log(`再接続成功 (attempt ${info.attempt})`); void resumeAfterReconnect(); },
     onReconnectFailed: () => log('自動再接続を諦めました', true),
     onError: (error) => log(`エラー: ${error}`, true),
   },
@@ -76,12 +76,31 @@ ble.on('lost_data', () => { lostCount += 1; });
 // ── 取得モード ──────────────────────────────────────────────────────
 const modeSelect = q<HTMLSelectElement>('[data-mode]');
 const modeWrap = q<HTMLElement>('[data-mode-wrap]');
+let begunType = ''; // CORE の最初の begin() の type。SDK は自動再接続でこれを再実行する
 let sensorNotifyOn = false;
 let stepNotifyOn = false;
 let switching = false;
 
+/** 切断されたら計測前の状態に戻す（手動で再接続したときは begin() からやり直す） */
+function markDisconnected(): void {
+  begun = false;
+  sensorNotifyOn = false;
+  stepNotifyOn = false;
+}
+
+/** 自動再接続は最初の begin() を再実行するので、その状態に戻してから選択中のモードを当て直す */
+async function resumeAfterReconnect(): Promise<void> {
+  begun = true;
+  if (profile.kind === 'core') {
+    sensorNotifyOn = begunType !== 'STEP_ANALYSIS';
+    stepNotifyOn = begunType !== 'SENSOR_VALUES';
+  }
+  await applyMode();
+}
+
 /** 接続後に呼ぶ。判別した種別・FW で使えるモードだけをセレクタに並べる */
 function buildModeOptions(): void {
+  const selected = modeSelect.value; // 手動で再接続したときは前回のモードを引き継ぐ
   modeSelect.replaceChildren();
   for (const mode of ble.availableModes) {
     const label = MODE_LABELS[mode.id];
@@ -91,13 +110,14 @@ function buildModeOptions(): void {
     option.textContent = label;
     modeSelect.appendChild(option);
   }
+  if ([...modeSelect.options].some((option) => option.value === selected)) modeSelect.value = selected;
   modeWrap.hidden = modeSelect.options.length === 0;
 }
 
 modeSelect.addEventListener('change', () => void applyMode());
 
 async function applyMode(): Promise<void> {
-  if (switching || ble.connectionState === 'disconnected') return;
+  if (switching || ble.connectionState !== 'connected') return;
   switching = true;
   try {
     if (profile.kind === 'insole') await applyInsoleMode(modeSelect.value);
@@ -115,6 +135,7 @@ async function applyCoreMode(type: string): Promise<void> {
   if (!begun) {
     await ble.begin(type, { autoReconnect });
     begun = true;
+    begunType = type;
     sensorNotifyOn = type !== 'STEP_ANALYSIS';
     stepNotifyOn = type !== 'SENSOR_VALUES';
     log(`begin('${type}') 完了`);
@@ -169,9 +190,7 @@ async function connect(): Promise<void> {
 function disconnect(): void {
   ble.stop();
   log('stop()');
-  begun = false;
-  sensorNotifyOn = false;
-  stepNotifyOn = false;
+  markDisconnected();
   modeWrap.hidden = true;
   fwEl.textContent = '';
   clearReadings();

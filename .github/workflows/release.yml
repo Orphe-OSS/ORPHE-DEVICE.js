@@ -4,7 +4,7 @@
 #
 # main には dist を入れない。dist/browser を含む commit をこの workflow で作り、tag だけを push する。
 # jsDelivr はその tag から配信する:
-#   https://cdn.jsdelivr.net/gh/Orphe-OSS/ORPHE-DEVICE.js@v<version>/dist/browser/orphe-device.js
+#   https://cdn.jsdelivr.net/gh/Orphe-OSS/ORPHE-DEVICE.js@v<version>/dist/browser/orphe-core-insole.js
 name: Release
 
 on:
