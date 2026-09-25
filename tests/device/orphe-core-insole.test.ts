@@ -1,7 +1,7 @@
 /**
- * OrpheDevice: コンポジット・ファサード。
+ * OrpheCoreInsole: コンポジット・ファサード。
  *
- *   OrpheDevice = OrpheBleTransport + DeviceProfile + SampleEmitter
+ *   OrpheCoreInsole = OrpheBleTransport + DeviceProfile + SampleEmitter
  *
  * - begin() はプロファイルの接続シーケンスを実行し、成功時に記憶 + 再接続 arm
  * - 通知は profile.parse() → emitter 配送
@@ -9,7 +9,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { OrpheDevice } from '../../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../../src/device/orphe-core-insole.ts';
 import type { BeginContext, DeviceProfile, SensorSample } from '../../src/device/profile.ts';
 import type { BleRequestDeviceOptions } from '../../src/ble/web-bluetooth.ts';
 import type { TransportEvents } from '../../src/ble/types.ts';
@@ -73,7 +73,7 @@ function makeHarness(events: TransportEvents = {}) {
   const device = new MockDevice('fake-1', 'FAKE-01');
   bluetooth.chooserQueue.push(device);
   const characteristic = device.gatt.getOrCreateService(SERVICE_B).getOrCreate(CHAR_SENSOR);
-  const ble = new OrpheDevice({
+  const ble = new OrpheCoreInsole({
     profile,
     id: 0,
     bluetooth,

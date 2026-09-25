@@ -4,11 +4,11 @@
  * ble.on('press', ...) のイベントキー補完とペイロード型付けが
  * プロファイルから推論されることを保証する。
  */
-import { OrpheDevice } from '../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../src/device/orphe-core-insole.ts';
 import { insoleProfile } from '../src/profiles/insole.ts';
 
 export function _insoleTypingAssertions(): void {
-  const ble = new OrpheDevice({ profile: insoleProfile() });
+  const ble = new OrpheCoreInsole({ profile: insoleProfile() });
 
   // イベントキーは InsoleSensorFields のキーに制限され、補完が効く
   ble.on('press', (press, meta) => {
@@ -59,7 +59,7 @@ export function _insoleTypingAssertions(): void {
 }
 
 /** プロファイル未指定の型（既定）では任意の文字列キーを許す */
-export function _untypedProfileAssertions(ble: OrpheDevice): void {
+export function _untypedProfileAssertions(ble: OrpheCoreInsole): void {
   ble.on('anything_goes', (value) => {
     // 既定では unknown（利用側で絞り込む）
     const v: unknown = value;

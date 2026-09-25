@@ -42,8 +42,8 @@ import type { FifoLossEvent } from './state.ts';
 
 // ── メインクラス ─────────────────────────────────────────────────────
 /**
- * FifoRecorder が必要とする OrpheDevice の構造的サブセット。
- * OrpheDevice（insoleProfile / coreProfile）をそのまま渡せる。
+ * FifoRecorder が必要とする OrpheCoreInsole の構造的サブセット。
+ * OrpheCoreInsole（insoleProfile / coreProfile）をそのまま渡せる。
  * FW の FIFO コマンド仕様は両デバイス共通（core は対応 FW が必要）。
  */
 export interface FifoHost {
@@ -232,7 +232,7 @@ export interface FifoRecorderOptions {
 }
 
 /**
- * FIFO（ロスレス）収集。begin() 済みの OrpheDevice（insole / core）を渡して使う。
+ * FIFO（ロスレス）収集。begin() 済みの OrpheCoreInsole（insole / core）を渡して使う。
  * core は FIFO 対応 FW でのみ動作する（未対応 FW では start() が false を返す）。
  * 収録中は SENSOR_VALUES の notify を setNotifySink で横取りするため、
  * リアルタイム配信（press/acc 等）は一時停止する。
@@ -245,7 +245,7 @@ export interface FifoRecorderOptions {
  *   fifo.download('capture.csv');
  */
 export class FifoRecorder {
-  /** 収集対象のデバイス（begin() 済みの OrpheDevice） */
+  /** 収集対象のデバイス（begin() 済みの OrpheCoreInsole） */
   readonly ble: FifoHost;
   /** 回復不能な欠損が出た時点で自動停止するか */
   stopOnLoss: boolean;

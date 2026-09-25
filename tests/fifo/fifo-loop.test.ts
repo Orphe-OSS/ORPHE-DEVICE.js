@@ -10,7 +10,7 @@ import assert from 'node:assert/strict';
 import { FifoRecorder } from '../../src/fifo/recorder.ts';
 import { FIFO_CSV_HEADER, decodeFifoPacket, rawStoreToCSV } from '../../src/fifo/protocol.ts';
 import type { FifoDataLossInfo, FifoStoppedInfo, FifoRecorderOptions } from '../../src/fifo/recorder.ts';
-import { OrpheDevice } from '../../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../../src/device/orphe-core-insole.ts';
 import type { BeginContext, DeviceProfile, SensorSample } from '../../src/device/profile.ts';
 import type { BleRequestDeviceOptions } from '../../src/ble/web-bluetooth.ts';
 import type { CharacteristicId } from '../../src/protocol/uuids.ts';
@@ -252,7 +252,7 @@ async function makeHarnessWith<P extends DeviceProfile>(profile: P) {
   const sensorCharacteristic = device.gatt.getOrCreateService(SERVICE_B).getOrCreate(CHAR_SENSOR);
   const fw = new FakeInsoleFw(infoCharacteristic, sensorCharacteristic);
   const errors: unknown[] = [];
-  const ble = new OrpheDevice({
+  const ble = new OrpheCoreInsole({
     profile,
     id: 0,
     bluetooth,

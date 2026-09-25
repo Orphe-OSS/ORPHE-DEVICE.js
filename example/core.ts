@@ -1,5 +1,5 @@
 /**
- * ORPHE CORE Sensor Viewer — OrpheDevice + coreProfile() のサンプル。
+ * ORPHE CORE Sensor Viewer — OrpheCoreInsole + coreProfile() のサンプル。
  *
  *   1. 接続ボタン    … chooser でデバイスを選び、GATT 接続して FW 情報を読む
  *   2. モードが出る  … ble.availableModes（FW のリリース日で絞り込み済み）で作る
@@ -7,7 +7,7 @@
  *
  * 複数台つなぎたい場合はこのページを台数ぶん開く（SDK 側は 1 インスタンス 1 台）。
  */
-import { FifoRecorder, OrpheDevice, coreProfile } from '../src/index.ts';
+import { FifoRecorder, OrpheCoreInsole, coreProfile } from '../src/index.ts';
 import type { CoreSensorFields } from '../src/index.ts';
 
 const RAD_TO_DEG = 180 / Math.PI;
@@ -51,7 +51,7 @@ const autoReconnectInput = document.getElementById('shared-reconnect') as HTMLIn
 // 名前が 'CR-' で始まるデバイスも chooser に出す
 const profile = coreProfile({ namePrefix: 'CR-' });
 
-const ble = new OrpheDevice({
+const ble = new OrpheCoreInsole({
   profile,
   events: {
     onScan: (deviceName) => { q('[data-device]').textContent = deviceName ?? '(no name)'; },

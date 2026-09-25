@@ -1,6 +1,6 @@
 /**
  * OrpheInsole（互換 API）: `new OrpheInsole(0)` + got* 代入スタイルが
- * OrpheDevice + insoleProfile の上で同じように動くこと。
+ * OrpheCoreInsole + insoleProfile の上で同じように動くこと。
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

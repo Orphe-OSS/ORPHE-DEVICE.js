@@ -1,5 +1,5 @@
 /**
- * `ble.gotAcc = function…` 代入スタイルの API を OrpheDevice の上に載せる共通土台。
+ * `ble.gotAcc = function…` 代入スタイルの API を OrpheCoreInsole の上に載せる共通土台。
  *
  * - got* / on* は target（このインスタンス）のメソッドとして持ち、ユーザが上書きする
  * - センサーの最新値（quat / acc / gyro …）はプロパティとして保持する
@@ -10,9 +10,9 @@ import type { BeginOptions, DeviceProfile, SensorFieldMap } from '../device/prof
 import type { OperationOptions, ReconnectConfig } from '../ble/types.ts';
 import type { BleDevice } from '../ble/web-bluetooth.ts';
 import type { RememberedDeviceInfo } from '../ble/device-memory.ts';
-import type { OrpheDeviceOptions } from '../device/orphe-device.ts';
+import type { OrpheCoreInsoleOptions } from '../device/orphe-core-insole.ts';
 import type { FirmwareInfo } from '../protocol/fw-info.ts';
-import { OrpheDevice } from '../device/orphe-device.ts';
+import { OrpheCoreInsole } from '../device/orphe-core-insole.ts';
 import { attachLegacyCallbacks } from '../device/legacy.ts';
 import { readDateTime, syncDeviceTime, writeDateTime } from '../device/time-sync.ts';
 import type { DeviceDateTime, SyncTimeResult } from '../device/time-sync.ts';
@@ -40,7 +40,7 @@ export interface LegacyReconnectSuccessInfo { attempt: number; maxAttempts: numb
 export interface LegacyReconnectFailedInfo { maxAttempts: number; elapsedMs: number; error: unknown }
 
 /** テスト・非ブラウザ環境向けの注入点 */
-export type LegacyDeviceInjections = Pick<OrpheDeviceOptions, 'bluetooth' | 'storage' | 'wait' | 'clock'>;
+export type LegacyDeviceInjections = Pick<OrpheCoreInsoleOptions, 'bluetooth' | 'storage' | 'wait' | 'clock'>;
 
 const DEFAULT_TIME_SYNC_SAMPLES = 3;
 
@@ -50,8 +50,8 @@ const registries = new Map<Function, Set<LegacyDevice<object>>>();
 export abstract class LegacyDevice<TFields extends object = SensorFieldMap> {
   /** スロット番号（0 or 1） */
   readonly id: number;
-  /** 内包する OrpheDevice。新 API と併用したい場合はこれを使う */
-  readonly device: OrpheDevice<TFields>;
+  /** 内包する OrpheCoreInsole。新 API と併用したい場合はこれを使う */
+  readonly device: OrpheCoreInsole<TFields>;
   /** デバッグログ（console.info）を有効にする */
   debug = false;
   /** 直近の begin() に渡された notification type */
@@ -76,7 +76,7 @@ export abstract class LegacyDevice<TFields extends object = SensorFieldMap> {
       registries.set(this.constructor, registry);
     }
     registry.add(this as LegacyDevice<object>);
-    this.device = new OrpheDevice<TFields>({
+    this.device = new OrpheCoreInsole<TFields>({
       profile,
       id,
       ...injections,
@@ -253,7 +253,7 @@ export abstract class LegacyDevice<TFields extends object = SensorFieldMap> {
 
   // ─── begin ────────────────────────────────────────────────────
 
-  /** 旧 API の平坦な再接続オプションを OrpheDevice の形に直す */
+  /** 旧 API の平坦な再接続オプションを OrpheCoreInsole の形に直す */
   protected toBeginOptions(options: LegacyBeginOptions): BeginOptions {
     const { reconnectIntervalMs, reconnectMaxAttempts, ...rest } = options;
     const reconnect: ReconnectConfig = {};

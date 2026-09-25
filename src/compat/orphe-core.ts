@@ -1,6 +1,6 @@
 /**
  * Orphe — `new Orphe(0)` + `gotGait = function…` スタイルの CORE API。
- * 通信・パース・接続シーケンスは OrpheDevice + coreProfile が担い、ここは
+ * 通信・パース・接続シーケンスは OrpheCoreInsole + coreProfile が担い、ここは
  * 旧来の呼び出し形と CORE 固有コマンド（LED / 取付位置 / 姿勢リセット）を受ける薄い層。
  * BleSharedBridge によるタブ間共有もここで束ねる。
  */

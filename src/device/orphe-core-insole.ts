@@ -1,13 +1,13 @@
 /**
- * OrpheDevice — コンポジット・ファサード。
+ * OrpheCoreInsole — コンポジット・ファサード。
  *
- *   OrpheDevice = OrpheBleTransport（通信） + DeviceProfile（core/insole 差分）
+ *   OrpheCoreInsole = OrpheBleTransport（通信） + DeviceProfile（core/insole 差分）
  *              + SampleEmitter（コールバック配送）
  *
  * デバイスSDK（Orphe / OrpheInsole）はこのファサードを内包するか、
  * 直接これを公開 API として使う。
  *
- *   const ble = new OrpheDevice({ profile: coreProfile(), id: 0 });
+ *   const ble = new OrpheCoreInsole({ profile: coreProfile(), id: 0 });
  *   ble.on('acc', (acc) => { ... });
  *   await ble.begin('SENSOR_VALUES', { autoReconnect: true });
  */
@@ -23,8 +23,8 @@ import type { SampleListener } from './sample-emitter.ts';
 /** FW 情報を read する characteristic の論理名 */
 const FIRMWARE_NAME_UUID = 'GET_FW_NAME';
 
-/** OrpheDevice のコンストラクタオプション */
-export interface OrpheDeviceOptions<TFields extends object = SensorFieldMap> {
+/** OrpheCoreInsole のコンストラクタオプション */
+export interface OrpheCoreInsoleOptions<TFields extends object = SensorFieldMap> {
   /** デバイス種別の実装（coreProfile() / insoleProfile()） */
   profile: DeviceProfile<TFields>;
   /** スロット番号（0 or 1）。記憶キーの分離に使う。既定 0 */
@@ -49,7 +49,7 @@ export interface OrpheDeviceOptions<TFields extends object = SensorFieldMap> {
   clock?: () => number;
 }
 
-export class OrpheDevice<TFields extends object = SensorFieldMap> {
+export class OrpheCoreInsole<TFields extends object = SensorFieldMap> {
   /** スロット番号（記憶デバイスの分離キー） */
   readonly id: number;
   /** デバイス種別の実装（接続シーケンス・パースを担う） */
@@ -69,7 +69,7 @@ export class OrpheDevice<TFields extends object = SensorFieldMap> {
   private firmwareInfo: FirmwareInfo | null = null;
   private readonly debugLog: (message: string, detail?: unknown) => void;
 
-  constructor(options: OrpheDeviceOptions<TFields>) {
+  constructor(options: OrpheCoreInsoleOptions<TFields>) {
     this.profile = options.profile;
     this.id = options.id ?? 0;
     this.lastBeginType = this.profile.defaultNotificationType;
@@ -176,7 +176,7 @@ export class OrpheDevice<TFields extends object = SensorFieldMap> {
    */
   setNotifySink(uuid: string, sink: (value: DataView) => void): () => void {
     if (this.notifySinks.has(uuid)) {
-      throw new Error(`OrpheDevice.setNotifySink: sink already installed for ${uuid}`);
+      throw new Error(`OrpheCoreInsole.setNotifySink: sink already installed for ${uuid}`);
     }
     this.notifySinks.set(uuid, sink);
     return () => {

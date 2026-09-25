@@ -3,9 +3,9 @@
 ORPHE CORE / ORPHE INSOLE を Web Bluetooth で扱う SDK。
 
 ```ts
-import { OrpheDevice, insoleProfile } from 'orphe-device';
+import { OrpheCoreInsole, insoleProfile } from 'orphe-core-insole';
 
-const ble = new OrpheDevice({ profile: insoleProfile() });
+const ble = new OrpheCoreInsole({ profile: insoleProfile() });
 ble.on('converted_press', (press) => console.log(press.values)); // 6ch 圧力 [N]
 ble.on('euler', (euler) => console.log(euler.roll, euler.pitch, euler.yaw));
 await ble.begin('SENSOR_VALUES', { autoReconnect: true });
@@ -49,9 +49,9 @@ npm run example      # サンプル（example/）を起動
 ### 接続と購読
 
 ```ts
-import { OrpheDevice, coreProfile, insoleProfile } from 'orphe-device';
+import { OrpheCoreInsole, coreProfile, insoleProfile } from 'orphe-core-insole';
 
-const ble = new OrpheDevice({
+const ble = new OrpheCoreInsole({
   profile: insoleProfile(),   // CORE なら coreProfile()
   id: 0,                      // 複数台つなぐときのスロット番号
   events: {
@@ -93,7 +93,7 @@ ble.availableModes;             // [{ id: 'STREAMING_4', label: 'Full sensor 100
 ### FIFO ロスレス収録
 
 ```ts
-import { FifoRecorder } from 'orphe-device';
+import { FifoRecorder } from 'orphe-core-insole';
 
 const fifo = new FifoRecorder(ble);
 fifo.onSamples = (deviceId, samples) => { /* 回収したサンプル */ };
@@ -108,7 +108,7 @@ fifo.download('capture.csv');
 ### 歩容解析（INSOLE）
 
 ```ts
-import { InsoleGait } from 'orphe-device';
+import { InsoleGait } from 'orphe-core-insole';
 
 const gait = new InsoleGait(ble);
 gait.onGait = (deviceId, row) => { /* 1 歩ぶんの歩容パラメーター */ };
@@ -131,7 +131,7 @@ await ble.begin('SENSOR_VALUES', {
 
 ### 複数台とタブ間共有
 
-- 複数台は `id` を変えて `OrpheDevice` を台数ぶん作ります。`deviceGuard` で二重割当を防げます。
+- 複数台は `id` を変えて `OrpheCoreInsole` を台数ぶん作ります。`deviceGuard` で二重割当を防げます。
 - `BleSharedBridge` で、接続を持つタブから他のタブへセンサーデータを配信できます。
 
 ### エラー

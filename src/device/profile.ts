@@ -1,7 +1,7 @@
 /**
  * DeviceProfile — デバイス固有差分（CORE / INSOLE）の注入点。
  *
- * OrpheDevice ファサードはこの interface だけに依存する。
+ * OrpheCoreInsole ファサードはこの interface だけに依存する。
  * プロファイルが持つのは:
  *   - chooser フィルタ / characteristic テーブル / 記憶キー
  *   - begin() の接続シーケンス（DeviceInfo 書込・streaming mode・時刻同期・notify 開始）
@@ -25,7 +25,7 @@ export interface SensorSample {
 
 /**
  * プロファイルが配送するフィールド名 → ペイロード型のマップ。
- * DeviceProfile<TFields> として宣言すると、OrpheDevice.on() のイベントキー補完と
+ * DeviceProfile<TFields> として宣言すると、OrpheCoreInsole.on() のイベントキー補完と
  * リスナー引数の型付けに使われる（例: InsoleSensorFields）。
  */
 export type SensorFieldMap = Record<string, unknown>;
@@ -41,7 +41,7 @@ export interface DeviceMode {
   label: string;
   /**
    * 利用に必要な最小 FW リリース日（`YYYYMMDD`）。0 は FW を問わない。
-   * 接続中デバイスのリリース日と比較して {@link OrpheDevice.availableModes} を決める。
+   * 接続中デバイスのリリース日と比較して {@link OrpheCoreInsole.availableModes} を決める。
    */
   minReleaseDate: number;
 }
@@ -80,13 +80,13 @@ export interface BeginContext {
   options: BeginOptions;
   /** 接続先の FW 情報（begin() の先頭で読む。読めなければ null） */
   firmware: FirmwareInfo | null;
-  /** デバッグログ（OrpheDeviceOptions.log）。接続シーケンスの判断を残すのに使う */
+  /** デバッグログ（OrpheCoreInsoleOptions.log）。接続シーケンスの判断を残すのに使う */
   log?: (message: string, detail?: unknown) => void;
 }
 
 /**
  * デバイス固有差分（CORE / INSOLE）の注入点。
- * OrpheDevice はこの interface だけに依存し、接続シーケンスとパースを委譲する。
+ * OrpheCoreInsole はこの interface だけに依存し、接続シーケンスとパースを委譲する。
  */
 export interface DeviceProfile<TFields extends object = SensorFieldMap> {
   /** 'core' | 'insole' など */

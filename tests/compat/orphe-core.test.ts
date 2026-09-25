@@ -1,5 +1,5 @@
 /**
- * Orphe（互換 API）: `new Orphe(0)` + got* 代入スタイルが OrpheDevice + coreProfile の上で
+ * Orphe（互換 API）: `new Orphe(0)` + got* 代入スタイルが OrpheCoreInsole + coreProfile の上で
  * 同じように動くこと。CORE 固有コマンドとタブ間共有も含む。
  */
 import { test } from 'node:test';

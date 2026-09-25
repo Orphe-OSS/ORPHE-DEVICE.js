@@ -1,5 +1,5 @@
 /**
- * ORPHE INSOLE Sensor Viewer — OrpheDevice + insoleProfile() のサンプル。
+ * ORPHE INSOLE Sensor Viewer — OrpheCoreInsole + insoleProfile() のサンプル。
  *
  *   1. 接続ボタン    … chooser でデバイスを選び、GATT 接続して FW 情報を読む
  *   2. モードが出る  … ble.availableModes（FW のリリース日で絞り込み済み）で作る
@@ -7,7 +7,7 @@
  *
  * 複数台つなぎたい場合はこのページを台数ぶん開く（SDK 側は 1 インスタンス 1 台）。
  */
-import { FifoRecorder, InsoleGait, OrpheDevice, insoleProfile, insoleStreamingModeOf } from '../src/index.ts';
+import { FifoRecorder, InsoleGait, OrpheCoreInsole, insoleProfile, insoleStreamingModeOf } from '../src/index.ts';
 import type { GaitRow, InsoleSensorFields } from '../src/index.ts';
 
 /** モード id → 画面に出す名前（SDK の mode.label は英語。ここで日本語に差し替える） */
@@ -53,7 +53,7 @@ const autoReconnectInput = document.getElementById('shared-reconnect') as HTMLIn
 // ── デバイス ────────────────────────────────────────────────────────
 const profile = insoleProfile();
 
-const ble = new OrpheDevice({
+const ble = new OrpheCoreInsole({
   profile,
   events: {
     onScan: (deviceName) => { q('[data-device]').textContent = deviceName ?? '(no name)'; },

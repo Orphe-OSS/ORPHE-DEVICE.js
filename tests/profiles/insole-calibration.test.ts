@@ -10,7 +10,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { OrpheDevice } from '../../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../../src/device/orphe-core-insole.ts';
 import { insoleProfile } from '../../src/profiles/insole.ts';
 import type { InsoleProfileOptions } from '../../src/profiles/insole.ts';
 import { INSOLE_PRESSURE_CALIBRATION_MIN_RELEASE_DATE } from '../../src/modes/insole.ts';
@@ -83,7 +83,7 @@ function makeInsole(options: HarnessOptions = {}) {
   const profile = insoleProfile({ timeSyncSamples: 1, ...options.profile });
   const errors: unknown[] = [];
   const logs: { message: string; detail?: unknown }[] = [];
-  const ble = new OrpheDevice({
+  const ble = new OrpheCoreInsole({
     profile,
     id: 0,
     bluetooth,

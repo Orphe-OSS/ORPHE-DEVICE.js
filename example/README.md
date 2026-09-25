@@ -1,6 +1,6 @@
 # examples
 
-`OrpheDevice` の実機動作サンプル。Vite が TypeScript をそのまま配信するので事前ビルドは不要。
+`OrpheCoreInsole` の実機動作サンプル。Vite が TypeScript をそのまま配信するので事前ビルドは不要。
 
 ```bash
 npm run example

@@ -1,5 +1,5 @@
 /**
- * orphe-device.js → orphe-device-toolkit.js の順に <script> と同じ形で読み込み、
+ * orphe-core-insole.js → orphe-core-insole-toolkit.js の順に <script> と同じ形で読み込み、
  * グローバルだけで Toolkit を組み立てられること。圧縮版（.min.js）も同じ確認をする。
  */
 import { before, test } from 'node:test';
@@ -21,18 +21,18 @@ for (const suffix of ['.js', '.min.js']) {
     installDom();
     document.body.innerHTML = '<div id="core"></div><div id="insole"></div>';
 
-    for (const file of [`orphe-device${suffix}`, `orphe-device-toolkit${suffix}`]) {
+    for (const file of [`orphe-core-insole${suffix}`, `orphe-core-insole-toolkit${suffix}`]) {
       vm.runInThisContext(readFileSync(`${root}dist/browser/${file}`, 'utf8'), { filename: file });
     }
 
     const g = globalThis as Record<string, any>;
-    assert.equal(typeof g.OrpheDeviceJS.OrpheDevice, 'function');
-    assert.equal(g.Orphe, g.OrpheDeviceJS.Orphe);
-    for (const [name, value] of Object.entries(g.OrpheDeviceJS)) {
+    assert.equal(typeof g.OrpheCoreInsoleJS.OrpheCoreInsole, 'function');
+    assert.equal(g.Orphe, g.OrpheCoreInsoleJS.Orphe);
+    for (const [name, value] of Object.entries(g.OrpheCoreInsoleJS)) {
       if (typeof value === 'function') assert.equal(value.name, name, 'クラス名・関数名が圧縮で変わらない');
     }
     assert.equal(typeof g.OrpheInsoleUtils.computeCoP, 'function');
-    assert.ok(g.cores[0] instanceof g.Orphe, 'Toolkit は orphe-device.js のクラスを使う');
+    assert.ok(g.cores[0] instanceof g.Orphe, 'Toolkit は orphe-core-insole.js のクラスを使う');
     assert.equal(g.bles, g.cores);
     assert.ok(g.insoles[0] instanceof g.OrpheInsole);
 

@@ -7,7 +7,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { OrpheDevice } from '../../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../../src/device/orphe-core-insole.ts';
 import type { BeginContext, DeviceProfile, SensorSample } from '../../src/device/profile.ts';
 import type { BleRequestDeviceOptions } from '../../src/ble/web-bluetooth.ts';
 import type { CharacteristicId } from '../../src/protocol/uuids.ts';
@@ -43,7 +43,7 @@ async function makeHarness(clock: () => number) {
   const device = new MockDevice('fake-1', 'FAKE-01');
   bluetooth.chooserQueue.push(device);
   const characteristic = device.gatt.getOrCreateService(SERVICE_B).getOrCreate(CHAR_SENSOR);
-  const ble = new OrpheDevice({ profile: new FakeProfile(), bluetooth, storage: new MemoryStorage(), clock });
+  const ble = new OrpheCoreInsole({ profile: new FakeProfile(), bluetooth, storage: new MemoryStorage(), clock });
   await ble.begin();
   return { ble, characteristic };
 }
