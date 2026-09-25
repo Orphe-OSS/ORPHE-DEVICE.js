@@ -2,7 +2,7 @@
  * ORPHE CORE の取得モード一覧と、FW リリース日によるしきい値。
  *
  * しきい値を変えるのはこのファイルだけで済む。判定そのものは
- * {@link OrpheDevice.availableModes} が行い、FIFO は {@link FifoRecorder.start} がそれを見て開始を断る。
+ * {@link OrpheCoreInsole.availableModes} が行い、FIFO は {@link FifoRecorder.start} がそれを見て開始を断る。
  */
 import type { DeviceMode } from '../device/profile.ts';
 

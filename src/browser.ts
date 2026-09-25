@@ -1,6 +1,6 @@
 /**
- * `<script src="orphe-device.js">` で読み込むファイルのエントリ。
- * 公開 API を `OrpheDeviceJS` に置き、互換クラスは同名のグローバルにも置く。
+ * `<script src="orphe-core-insole.js">` で読み込むファイルのエントリ。
+ * 公開 API を `OrpheCoreInsoleJS` に置き、互換クラスは同名のグローバルにも置く。
  */
 import { INSOLE_STREAMING_MODES } from './modes/insole.ts';
 import { parseInsoleSensorValues } from './profiles/insole.ts';

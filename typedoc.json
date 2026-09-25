@@ -2,7 +2,7 @@
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["src/index.ts"],
   "out": "api_doc",
-  "name": "orphe-device",
+  "name": "orphe-core-insole",
   "includeVersion": true,
   "readme": "README.md",
   "excludePrivate": true,

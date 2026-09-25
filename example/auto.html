@@ -4,22 +4,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ORPHE INSOLE — Sensor Viewer</title>
+  <title>ORPHE CORE / INSOLE — Auto Profile</title>
   <link rel="icon" href="data:,">
   <link rel="stylesheet" href="./style.css">
 </head>
 
 <body>
   <header class="page">
-    <h1>ORPHE INSOLE — Sensor Viewer</h1>
-    <span class="sub">OrpheCoreInsole + insoleProfile()</span>
+    <h1>ORPHE CORE / INSOLE — Auto Profile</h1>
+    <span class="sub">OrpheCoreInsole + autoProfile()</span>
     <a href="./index.html">← examples</a>
   </header>
 
   <section class="card">
-    <h2>ORPHE INSOLE
+    <h2><span data-kind>CORE / INSOLE</span>
       <span class="badge" data-state>disconnected</span>
-      <span class="badge" data-mount hidden></span>
       <span class="device" data-device></span>
     </h2>
 
@@ -32,7 +31,7 @@
     </div>
     <div class="hint" data-fw></div>
 
-    <div class="press-bars" data-modes="full press gait" hidden>
+    <div class="press-bars" data-kinds="insole" hidden>
       <div class="ch"><div class="bar-track"><div class="bar" data-bar="0"></div></div><div class="val" data-val="0">-</div><div class="name">①つま先内</div></div>
       <div class="ch"><div class="bar-track"><div class="bar" data-bar="1"></div></div><div class="val" data-val="1">-</div><div class="name">②母趾球</div></div>
       <div class="ch"><div class="bar-track"><div class="bar" data-bar="2"></div></div><div class="val" data-val="2">-</div><div class="name">③つま先外</div></div>
@@ -41,48 +40,19 @@
       <div class="ch"><div class="bar-track"><div class="bar" data-bar="5"></div></div><div class="val" data-val="5">-</div><div class="name">⑥踵</div></div>
     </div>
 
-    <div class="stats" data-modes="full press imu gait" hidden>
+    <div class="stats" data-kinds="core insole" hidden>
       <span>freq <b data-freq>-</b> Hz</span>
       <span>serial <b data-serial>-</b></span>
       <span>lost <b data-lost>0</b></span>
-      <span>battery <b data-battery>-</b></span>
+      <span data-kinds="core">steps <b data-steps>-</b></span>
     </div>
-    <table class="values" data-modes="full press imu gait" hidden>
+    <table class="values" data-kinds="core insole" hidden>
       <tr><th class="row"></th><th>W</th><th>X</th><th>Y</th><th>Z</th></tr>
-      <tr data-modes="full imu gait"><th class="row">Quat</th><td data-v="quat.w"></td><td data-v="quat.x"></td><td data-v="quat.y"></td><td data-v="quat.z"></td></tr>
-      <tr data-modes="full imu gait"><th class="row">Euler [rad]</th><td></td><td data-v="euler.pitch"></td><td data-v="euler.roll"></td><td data-v="euler.yaw"></td></tr>
+      <tr><th class="row">Quat</th><td data-v="quat.w"></td><td data-v="quat.x"></td><td data-v="quat.y"></td><td data-v="quat.z"></td></tr>
+      <tr><th class="row">Euler [rad]</th><td></td><td data-v="euler.pitch"></td><td data-v="euler.roll"></td><td data-v="euler.yaw"></td></tr>
       <tr><th class="row">Gyro [dps]</th><td></td><td data-v="converted_gyro.x"></td><td data-v="converted_gyro.y"></td><td data-v="converted_gyro.z"></td></tr>
       <tr><th class="row">Acc [G]</th><td></td><td data-v="converted_acc.x"></td><td data-v="converted_acc.y"></td><td data-v="converted_acc.z"></td></tr>
     </table>
-
-    <div class="module" data-gait-module hidden>
-      <div class="module-head">
-        <span>歩容解析（STEP_ANALYSIS 50Hz）</span>
-        <button data-gait-csv disabled>CSV</button>
-      </div>
-      <div class="stats">
-        <span>steps <b data-gait-steps>0</b></span>
-        <span>type <b data-gait-type>-</b></span>
-        <span>stride <b data-gait-stride>-</b> m</span>
-        <span>strike <b data-gait-strike>-</b></span>
-        <span>pronation <b data-gait-pronation>-</b></span>
-        <span>loss <b data-gait-loss>0</b></span>
-      </div>
-    </div>
-
-    <div class="module" data-fifo-module hidden>
-      <div class="module-head">
-        <span data-fifo-title></span>
-        <button data-fifo-toggle disabled>収録開始</button>
-        <button data-fifo-csv disabled>CSV</button>
-      </div>
-      <div class="stats">
-        <span>collected <b data-fifo-collected>0</b></span>
-        <span>lag <b data-fifo-lag>0</b></span>
-        <span>dropped <b data-fifo-dropped>0</b></span>
-        <span data-fifo-phase></span>
-      </div>
-    </div>
 
     <div class="log" data-log></div>
 
@@ -95,7 +65,7 @@
     </details>
   </section>
 
-  <script type="module" src="./insole.ts"></script>
+  <script type="module" src="./auto.ts"></script>
 </body>
 
 </html>

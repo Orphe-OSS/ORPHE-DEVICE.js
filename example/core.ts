@@ -1,5 +1,5 @@
 /**
- * ORPHE CORE Sensor Viewer — OrpheDevice + coreProfile() のサンプル。
+ * ORPHE CORE Sensor Viewer — OrpheCoreInsole + coreProfile() のサンプル。
  *
  *   1. 接続ボタン    … chooser でデバイスを選び、GATT 接続して FW 情報を読む
  *   2. モードが出る  … ble.availableModes（FW のリリース日で絞り込み済み）で作る
@@ -7,7 +7,7 @@
  *
  * 複数台つなぎたい場合はこのページを台数ぶん開く（SDK 側は 1 インスタンス 1 台）。
  */
-import { FifoRecorder, OrpheDevice, coreProfile } from '../src/index.ts';
+import { FifoRecorder, OrpheCoreInsole, coreProfile } from '../src/index.ts';
 import type { CoreSensorFields } from '../src/index.ts';
 
 const RAD_TO_DEG = 180 / Math.PI;
@@ -51,14 +51,14 @@ const autoReconnectInput = document.getElementById('shared-reconnect') as HTMLIn
 // 名前が 'CR-' で始まるデバイスも chooser に出す
 const profile = coreProfile({ namePrefix: 'CR-' });
 
-const ble = new OrpheDevice({
+const ble = new OrpheCoreInsole({
   profile,
   events: {
     onScan: (deviceName) => { q('[data-device]').textContent = deviceName ?? '(no name)'; },
     onStartNotify: (uuid) => log(`startNotify: ${uuid}`),
-    onDisconnect: () => log('切断されました'),
+    onDisconnect: () => { log('切断されました'); markDisconnected(); },
     onReconnectAttempt: (info) => log(`再接続中... ${info.attempt}/${info.maxAttempts}`),
-    onReconnectSuccess: (info) => log(`再接続成功 (attempt ${info.attempt})`),
+    onReconnectSuccess: (info) => { log(`再接続成功 (attempt ${info.attempt})`); void resumeAfterReconnect(); },
     onReconnectFailed: () => log('自動再接続を諦めました', true),
     onError: (error) => log(`エラー: ${error}`, true),
   },
@@ -121,12 +121,29 @@ q<HTMLButtonElement>('[data-fifo-csv]').addEventListener('click', () => {
 const modeSelect = q<HTMLSelectElement>('[data-mode]');
 const modeWrap = q<HTMLElement>('[data-mode-wrap]');
 let begun = false;
+let begunType = ''; // 最初の begin() の type。SDK は自動再接続でこれを再実行する
 let sensorNotifyOn = false;
 let stepNotifyOn = false;
 let switching = false;
 
+/** 切断されたら計測前の状態に戻す（手動で再接続したときは begin() からやり直す） */
+function markDisconnected(): void {
+  begun = false;
+  sensorNotifyOn = false;
+  stepNotifyOn = false;
+}
+
+/** 自動再接続は最初の begin() を再実行するので、その状態に戻してから選択中のモードを当て直す */
+async function resumeAfterReconnect(): Promise<void> {
+  begun = true;
+  sensorNotifyOn = begunType !== 'STEP_ANALYSIS';
+  stepNotifyOn = begunType !== 'SENSOR_VALUES';
+  await applyMode();
+}
+
 /** 接続後に呼ぶ。この FW で使えるモードだけをセレクタに並べる */
 function buildModeOptions(): void {
+  const selected = modeSelect.value; // 手動で再接続したときは前回のモードを引き継ぐ
   modeSelect.replaceChildren();
   for (const mode of ble.availableModes) {
     const option = document.createElement('option');
@@ -134,13 +151,14 @@ function buildModeOptions(): void {
     option.textContent = MODE_LABELS[mode.id] ?? mode.label;
     modeSelect.appendChild(option);
   }
+  if ([...modeSelect.options].some((option) => option.value === selected)) modeSelect.value = selected;
   modeWrap.hidden = modeSelect.options.length === 0;
 }
 
 modeSelect.addEventListener('change', () => void applyMode());
 
 async function applyMode(): Promise<void> {
-  if (switching || ble.connectionState === 'disconnected') return;
+  if (switching || ble.connectionState !== 'connected') return;
   const mode = modeSelect.value;
   switching = true;
   try {
@@ -151,6 +169,7 @@ async function applyMode(): Promise<void> {
     if (!begun) {
       await ble.begin(type, { autoReconnect: autoReconnectInput.checked });
       begun = true;
+      begunType = type;
       sensorNotifyOn = type !== 'STEP_ANALYSIS';
       stepNotifyOn = type !== 'SENSOR_VALUES';
       log(`begin('${type}') 完了`);
@@ -200,9 +219,7 @@ async function disconnect(): Promise<void> {
     if (fifo.isRunning) await stopFifo(); // モード復帰の write は接続中に済ませる
     ble.stop();
     log('stop()');
-    begun = false;
-    sensorNotifyOn = false;
-    stepNotifyOn = false;
+    markDisconnected();
     modeWrap.hidden = true;
     fwEl.textContent = '';
     clearReadings();

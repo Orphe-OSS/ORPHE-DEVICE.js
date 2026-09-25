@@ -2,7 +2,7 @@
  * BLE トランスポート層の契約（設定・イベント・操作オプション）。
  *
  * 依存方向:
- *   デバイス層 (OrpheDevice / DeviceProfile) → OrpheBleTransport → Web Bluetooth API
+ *   デバイス層 (OrpheCoreInsole / DeviceProfile) → OrpheBleTransport → Web Bluetooth API
  *
  * Web Bluetooth そのものの型は web-bluetooth.ts、エラーは errors.ts。
  */

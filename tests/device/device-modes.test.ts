@@ -1,14 +1,14 @@
 /**
  * FW リリース日による取得モードの絞り込み。
  *
- * - begin() の先頭で GET_FW_NAME を read し、OrpheDevice.firmware にキャッシュする
+ * - begin() の先頭で GET_FW_NAME を read し、OrpheCoreInsole.firmware にキャッシュする
  * - profile.modes() の minReleaseDate と突き合わせて availableModes を出す
  * - FW 情報が取れない個体（旧 FW・characteristic 未実装）は絞り込まない
  * - FIFO は FifoRecorder.start() が availableModes を見て、使えない FW では開始しない
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { OrpheDevice } from '../../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../../src/device/orphe-core-insole.ts';
 import { coreProfile } from '../../src/profiles/core.ts';
 import { CORE_FIFO_MIN_RELEASE_DATE } from '../../src/modes/core.ts';
 import { insoleProfile } from '../../src/profiles/insole.ts';
@@ -39,7 +39,7 @@ function makeCore(options: { fw?: DataView | null } = {}) {
   }
 
   const errors: unknown[] = [];
-  const ble = new OrpheDevice({
+  const ble = new OrpheCoreInsole({
     profile: coreProfile({ settleMs: 0, timeSyncSamples: 1 }),
     id: 0,
     bluetooth,
@@ -143,7 +143,7 @@ test('readFirmwareInfo(): FW 読取の失敗は null だが、デバイス選択
   assert.equal(empty.errors.length, 0);
 
   const errors: unknown[] = [];
-  const cancelled = new OrpheDevice({
+  const cancelled = new OrpheCoreInsole({
     profile: coreProfile({ settleMs: 0, timeSyncSamples: 1 }),
     id: 0,
     bluetooth: new MockBluetooth(), // chooser は空 = キャンセル
@@ -173,7 +173,7 @@ test('begin(): プロファイルの begin() に読み取った firmware を渡�
     seen.push(context.firmware?.releaseDate ?? null);
     return originalBegin(context);
   };
-  const ble = new OrpheDevice({ profile, id: 0, bluetooth, storage: new MemoryStorage(), wait: async () => {} });
+  const ble = new OrpheCoreInsole({ profile, id: 0, bluetooth, storage: new MemoryStorage(), wait: async () => {} });
   await ble.begin('SENSOR_VALUES');
   assert.deepEqual(seen, [20260905]);
 });

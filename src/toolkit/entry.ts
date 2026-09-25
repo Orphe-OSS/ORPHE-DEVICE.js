@@ -1,6 +1,6 @@
 /**
- * `<script src="orphe-device-toolkit.js">` で読み込むファイルのエントリ。
- * 先に orphe-device.js を読み込んでおくこと。buildCoreToolkit() などをグローバルに置く
+ * `<script src="orphe-core-insole-toolkit.js">` で読み込むファイルのエントリ。
+ * 先に orphe-core-insole.js を読み込んでおくこと。buildCoreToolkit() などをグローバルに置く
  * （設定モーダルの onchange 属性からも呼ばれる）。
  */
 import {

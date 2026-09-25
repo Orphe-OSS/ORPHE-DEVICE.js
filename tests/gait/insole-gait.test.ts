@@ -2,7 +2,7 @@
  * InsoleGait — 歩容解析（STEP_ANALYSIS）
  *
  * 1) デコード・集約・CSV の単体テスト
- * 2) OrpheDevice + mock transport でのライフサイクル（購読・停止・多重 start・再接続）
+ * 2) OrpheCoreInsole + mock transport でのライフサイクル（購読・停止・多重 start・再接続）
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -11,7 +11,7 @@ import { InsoleGait } from '../../src/gait/analyzer.ts';
 import { decodeGaitPacket } from '../../src/gait/packet.ts';
 import type { GaitPacket } from '../../src/gait/packet.ts';
 import type { GaitRow, GaitStepLossInfo } from '../../src/gait/aggregator.ts';
-import { OrpheDevice } from '../../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../../src/device/orphe-core-insole.ts';
 import type { BeginContext, DeviceProfile, SensorSample } from '../../src/device/profile.ts';
 import type { BleRequestDeviceOptions } from '../../src/ble/web-bluetooth.ts';
 import type { CharacteristicId } from '../../src/protocol/uuids.ts';
@@ -307,7 +307,7 @@ function makeHarness() {
   device.gatt.getOrCreateService(SERVICE_B).getOrCreate(CHAR_SENSOR);
   const stepCharacteristic = device.gatt.getOrCreateService(SERVICE_B).getOrCreate(CHAR_STEP);
   const errors: unknown[] = [];
-  const ble = new OrpheDevice({
+  const ble = new OrpheCoreInsole({
     profile: new FakeInsoleProfile(),
     id: 0,
     bluetooth,
@@ -362,7 +362,7 @@ test('InsoleGait: 未接続では start できない', async () => {
   assert.match(String(h.errors[0]), /not connected/);
 });
 
-test('InsoleGait: 同じ OrpheDevice への多重 start は失敗する（1 active gait のみ）', async () => {
+test('InsoleGait: 同じ OrpheCoreInsole への多重 start は失敗する（1 active gait のみ）', async () => {
   const h = makeHarness();
   await h.ble.begin();
   const first = new InsoleGait(h.ble);

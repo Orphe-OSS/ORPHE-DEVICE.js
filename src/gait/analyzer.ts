@@ -21,8 +21,8 @@ import type { GaitRow, GaitStepLossInfo, GaitStepLossStats } from './aggregator.
 
 
 /**
- * InsoleGait が必要とする OrpheDevice の構造的サブセット。
- * OrpheDevice<InsoleSensorFields> をそのまま渡せる（疎結合のための境界）。
+ * InsoleGait が必要とする OrpheCoreInsole の構造的サブセット。
+ * OrpheCoreInsole<InsoleSensorFields> をそのまま渡せる（疎結合のための境界）。
  */
 export interface GaitHost {
   /** デバイス識別子。コールバックの deviceId に載る */
@@ -91,13 +91,13 @@ export interface GaitDiagnostics {
 }
 
 /**
- * 歩容解析のリアルタイム取得。begin() 済みの OrpheDevice（insoleProfile）を渡して使う。
+ * 歩容解析のリアルタイム取得。begin() 済みの OrpheCoreInsole（insoleProfile）を渡して使う。
  * STEP_ANALYSIS の notify は setNotifySink で横取りし、通常のセンサー配送
- * （周波数計測・parse）には流さない。1つの OrpheDevice に対して active な
+ * （周波数計測・parse）には流さない。1つの OrpheCoreInsole に対して active な
  * InsoleGait は同時に1つ（多重 start は失敗する）。
  */
 export class InsoleGait {
-  /** 解析対象のデバイス（begin() 済みの OrpheDevice） */
+  /** 解析対象のデバイス（begin() 済みの OrpheCoreInsole） */
   readonly ble: GaitHost;
   /**
    * サブパケットを歩単位にまとめる集約器
@@ -270,7 +270,7 @@ export class InsoleGait {
     }
     if (!this.removeSink) {
       try {
-        // 同じ OrpheDevice に別の InsoleGait が active な場合はここで失敗する
+        // 同じ OrpheCoreInsole に別の InsoleGait が active な場合はここで失敗する
         this.removeSink = this.ble.setNotifySink('STEP_ANALYSIS', (value) => this.onPacket(value));
       } catch (error) {
         this.reportError(error);

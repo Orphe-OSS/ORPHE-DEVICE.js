@@ -1,7 +1,7 @@
 /**
- * OrpheDevice: コンポジット・ファサード。
+ * OrpheCoreInsole: コンポジット・ファサード。
  *
- *   OrpheDevice = OrpheBleTransport + DeviceProfile + SampleEmitter
+ *   OrpheCoreInsole = OrpheBleTransport + DeviceProfile + SampleEmitter
  *
  * - begin() はプロファイルの接続シーケンスを実行し、成功時に記憶 + 再接続 arm
  * - 通知は profile.parse() → emitter 配送
@@ -9,7 +9,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { OrpheDevice } from '../../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../../src/device/orphe-core-insole.ts';
 import type { BeginContext, DeviceProfile, SensorSample } from '../../src/device/profile.ts';
 import type { BleRequestDeviceOptions } from '../../src/ble/web-bluetooth.ts';
 import type { TransportEvents } from '../../src/ble/types.ts';
@@ -28,6 +28,7 @@ class FakeProfile implements DeviceProfile {
   beginTypes: string[] = [];
   steps: string[] = [];
   failNextBegin: unknown = null;
+  resolveDevice?: (name: string | null) => void;
 
   storageKey(id: number): string {
     return `orphe_fake_last_device_${id}`;
@@ -73,7 +74,7 @@ function makeHarness(events: TransportEvents = {}) {
   const device = new MockDevice('fake-1', 'FAKE-01');
   bluetooth.chooserQueue.push(device);
   const characteristic = device.gatt.getOrCreateService(SERVICE_B).getOrCreate(CHAR_SENSOR);
-  const ble = new OrpheDevice({
+  const ble = new OrpheCoreInsole({
     profile,
     id: 0,
     bluetooth,
@@ -87,6 +88,20 @@ function makeHarness(events: TransportEvents = {}) {
 function emit(characteristic: { emit(v: DataView): void }, ...bytes: number[]): void {
   characteristic.emit(new DataView(new Uint8Array(bytes).buffer));
 }
+
+test('readFirmwareInfo: GET_FW_NAME を登録しないプロファイルでも resolveDevice は呼ばれ、read はしない', async () => {
+  const h = makeHarness();
+  const resolved: (string | null)[] = [];
+  h.profile.resolveDevice = (name) => { resolved.push(name); };
+  const info = h.device.gatt.getOrCreateService(SERVICE_A).getOrCreate(CHAR_INFO);
+
+  assert.equal(await h.ble.readFirmwareInfo(), null);
+
+  assert.deepEqual(resolved, ['FAKE-01']);
+  assert.equal(h.ble.firmware, null);
+  assert.equal(info.readCalls, 0, 'FW characteristic が無いので GATT read は行わない');
+  assert.equal(h.ble.transport.device?.name, 'FAKE-01', 'デバイスの選択は済んでいる');
+});
 
 test('begin: プロファイルのシーケンスを実行し、成功でデバイスを記憶する', async () => {
   const h = makeHarness();

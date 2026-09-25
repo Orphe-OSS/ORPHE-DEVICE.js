@@ -12,7 +12,7 @@
  *     停止する（gotData モード）。lostData / gotBLEFrequency は停止しない
  *   - コールバックの throw は他の配送を壊さず onError へ報告される
  */
-import type { OrpheDevice } from './orphe-device.ts';
+import type { OrpheCoreInsole } from './orphe-core-insole.ts';
 
 const IRREGULAR_FIELD_NAMES: Record<string, string> = {
   ble_frequency: 'gotBLEFrequency',
@@ -42,7 +42,7 @@ export function fieldToGotName(field: string): string {
  * 誤爆しない（ユーザが差し替えたときだけ発動する）。
  */
 export function attachLegacyCallbacks<TFields extends object>(
-  ble: OrpheDevice<TFields>,
+  ble: OrpheCoreInsole<TFields>,
   target: Record<string, unknown> = ble as unknown as Record<string, unknown>
 ): () => void {
   const initialGotData = target.gotData;

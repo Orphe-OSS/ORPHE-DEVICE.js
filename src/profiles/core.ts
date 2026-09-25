@@ -83,7 +83,7 @@ export interface CorePronationPayload extends Vec3 {}
 
 /**
  * フィールド名 → ペイロード型のマップ。
- * OrpheDevice.on() のイベントキー補完とリスナー引数の型付けに使われる。
+ * OrpheCoreInsole.on() のイベントキー補完とリスナー引数の型付けに使われる。
  * フィールド名は got* コールバック名から got を除いた snake_case。
  */
 export interface CoreSensorFields {

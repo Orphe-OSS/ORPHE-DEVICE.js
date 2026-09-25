@@ -1,6 +1,6 @@
 /**
  * OrpheInsole — `new OrpheInsole(0)` + `gotPress = function…` スタイルの INSOLE API。
- * 通信・パース・接続シーケンスは OrpheDevice + insoleProfile が担い、ここは
+ * 通信・パース・接続シーケンスは OrpheCoreInsole + insoleProfile が担い、ここは
  * 旧来の呼び出し形をそのまま受けるための薄い層。
  */
 import type { LegacyBeginOptions, LegacyDeviceInjections } from './legacy-device.ts';

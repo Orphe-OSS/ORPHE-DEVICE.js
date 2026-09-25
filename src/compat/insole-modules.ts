@@ -5,7 +5,7 @@
 import type { FifoRecorderOptions } from '../fifo/recorder.ts';
 import { FifoRecorder } from '../fifo/recorder.ts';
 import { InsoleGait } from '../gait/analyzer.ts';
-import { OrpheDevice } from '../device/orphe-device.ts';
+import { OrpheCoreInsole } from '../device/orphe-core-insole.ts';
 import { LegacyDevice } from './legacy-device.ts';
 import {
   FIFO_CSV_HEADER,
@@ -16,9 +16,9 @@ import {
 } from '../fifo/protocol.ts';
 import { GAIT_CSV_HEADER } from '../gait/aggregator.ts';
 
-type Host = LegacyDevice<object> | OrpheDevice<object>;
+type Host = LegacyDevice<object> | OrpheCoreInsole<object>;
 
-function hostDevice(host: Host): OrpheDevice<object> {
+function hostDevice(host: Host): OrpheCoreInsole<object> {
   return host instanceof LegacyDevice ? host.device : host;
 }
 
@@ -29,7 +29,7 @@ export class OrpheInsoleFifo extends FifoRecorder {
   static readonly CSV_HEADER = FIFO_CSV_HEADER;
   static readonly RING_BUFFER_CAPACITY = FIFO_RING_BUFFER_CAPACITY;
 
-  /** 渡された互換インスタンス（または OrpheDevice） */
+  /** 渡された互換インスタンス（または OrpheCoreInsole） */
   readonly insole: Host;
 
   constructor(insole: Host, options: FifoRecorderOptions = {}) {
@@ -41,7 +41,7 @@ export class OrpheInsoleFifo extends FifoRecorder {
 export class OrpheInsoleGait extends InsoleGait {
   static readonly CSV_HEADER = GAIT_CSV_HEADER;
 
-  /** 渡された互換インスタンス（または OrpheDevice） */
+  /** 渡された互換インスタンス（または OrpheCoreInsole） */
   readonly insole: Host;
 
   constructor(insole: Host, _options: Record<string, unknown> = {}) {

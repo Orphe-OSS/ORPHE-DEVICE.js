@@ -1,13 +1,13 @@
 /**
- * orphe-device — ORPHE CORE / ORPHE INSOLE 共通 BLE SDK の公開 API。
+ * orphe-core-insole — ORPHE CORE / ORPHE INSOLE 共通 BLE SDK の公開 API。
  *
  * ここに並ぶものだけが互換性を約束する対象。内部部品（プロトコルの codec、
  * 状態機械、キュー等）は各モジュールから直接 import できるが、公開 API ではない。
  */
 
 // ── デバイス（ファサード） ────────────────────────────────────────
-export { OrpheDevice } from './device/orphe-device.ts';
-export type { OrpheDeviceOptions } from './device/orphe-device.ts';
+export { OrpheCoreInsole } from './device/orphe-core-insole.ts';
+export type { OrpheCoreInsoleOptions } from './device/orphe-core-insole.ts';
 export type {
   BeginContext,
   BeginOptions,
@@ -79,6 +79,10 @@ export {
   pressureToNewton,
 } from './protocol/pressure-calibration.ts';
 export type { PressureCalibration } from './protocol/pressure-calibration.ts';
+
+// ── プロファイル（自動判別） ──────────────────────────────────────
+export { AutoProfile, autoProfile, detectDeviceKind } from './profiles/auto.ts';
+export type { AutoProfileOptions, AutoSensorFields, DeviceKind } from './profiles/auto.ts';
 
 // ── FIFO 収録（ロスレス） ─────────────────────────────────────────
 export { FifoRecorder } from './fifo/recorder.ts';

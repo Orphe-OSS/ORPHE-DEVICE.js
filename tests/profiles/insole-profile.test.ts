@@ -12,7 +12,7 @@ import {
   insoleRequestDeviceOptions,
 } from '../../src/profiles/insole.ts';
 import { INSOLE_STREAMING_MODES } from '../../src/modes/insole.ts';
-import { OrpheDevice } from '../../src/device/orphe-device.ts';
+import { OrpheCoreInsole } from '../../src/device/orphe-core-insole.ts';
 import { OrpheBleTransport } from '../../src/ble/transport.ts';
 import { encodeDateTime } from '../../src/protocol/datetime.ts';
 import { ORPHE_UUID } from '../../src/protocol/uuids.ts';
@@ -244,9 +244,9 @@ test('parse: SENSOR_VALUES 以外の uuid は null', () => {
   assert.equal(profile.parse('DEVICE_INFORMATION', packet104(50)), null);
 });
 
-// ─── OrpheDevice との結合 ───────────────────────────────────────────
+// ─── OrpheCoreInsole との結合 ───────────────────────────────────────────
 
-test('OrpheDevice + insoleProfile: begin → 通知が on("press") に届く', async () => {
+test('OrpheCoreInsole + insoleProfile: begin → 通知が on("press") に届く', async () => {
   const bluetooth = new MockBluetooth();
   const device = new MockDevice('ins-1', 'INS-01');
   bluetooth.chooserQueue.push(device);
@@ -260,7 +260,7 @@ test('OrpheDevice + insoleProfile: begin → 通知が on("press") に届く', a
   info.readValueData = new DataView(infoBytes.buffer);
   dateTime.readValueData = new DataView(encodeDateTime(new Date()).buffer);
 
-  const ble = new OrpheDevice({
+  const ble = new OrpheCoreInsole({
     profile: insoleProfile(),
     id: 0,
     bluetooth,
