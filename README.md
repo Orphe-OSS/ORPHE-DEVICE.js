@@ -1,4 +1,4 @@
-# ORPHE Device.js
+# ORPHE Core-Insole.js
 
 ORPHE CORE / ORPHE INSOLE を Web Bluetooth で扱う SDK。
 
