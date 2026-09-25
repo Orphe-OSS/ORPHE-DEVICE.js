@@ -12,6 +12,7 @@ export default defineConfig({
         index: fileURLToPath(new URL('example/index.html', import.meta.url)),
         core: fileURLToPath(new URL('example/core.html', import.meta.url)),
         insole: fileURLToPath(new URL('example/insole.html', import.meta.url)),
+        auto: fileURLToPath(new URL('example/auto.html', import.meta.url)),
       },
     },
   },
